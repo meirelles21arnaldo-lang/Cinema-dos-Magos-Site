@@ -1,6 +1,6 @@
 # ORM, tratar uma tabela como se fosse um objeto
 import sqlite3 as sql
-import app
+
 #def é como se fosse o public static, pra inciar um método
 #def conect_db(url):
 #    conn = sql.connect(url)
@@ -32,12 +32,41 @@ def create_table_filmes(conn: sql.Connection):
 #tem que tratar os erros nulo, numero ao inves de string
 def cadastrar_filme(nome, genero, classificacaoEtaria, duracao, capa):
 
-    conn = sql.connect("cinema.db")
+    conn = conect_db_cinema()
     cursor = conn.cursor()
 
     cursor.execute("""
         INSERT INTO filmes (nome, genero, classificacaoEtaria, duracao, capa) VALUES (?, ?, ?, ?, ?)
-    """,(nome, genero, classificacaoEtaria, duracao, capa))
+    """,(nome , genero , classificacaoEtaria , duracao , capa))
+
+    conn.commit()
+    conn.close()
+
+def update_filme_by_id(id, genero, classi, duracao, capa):
+    conn = conect_db_cinema()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE filmes SET genero = ?, classificacaoEtaria = ?, duracao = ?, capa = ? WHERE id = ?
+        """,(genero , classi , duracao , capa , id))
+
+def get_ID_filme_by_name(nome: str):
+
+    conn = conect_db_cinema()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM filmes WHERE nome = ?",(nome.strip()))
+
+    id_filme = cursor.fetchone()[0]
+
+    conn.close()
+    return id_filme
+
+def deletar_filme(id):
+    conn = conect_db_cinema()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM filmes WHERE id = ?" , (id,))
 
     conn.commit()
     conn.close()
