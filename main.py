@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import database as db
 
 
@@ -7,6 +8,7 @@ st.header("Painel de Gestão de Títulos em Exibição", text_alignment="center"
 
 colunas_superior = st.columns(2)
 
+#Cadastro de Filmes
 with colunas_superior[0]:
     st.markdown("##### --- Cadastro de Filmes ---", text_alignment="center")
 
@@ -28,12 +30,15 @@ with colunas_superior[0]:
         if btn_cadastro_filme:
             db.cadastrar_filme(nome_filme, genero_filme, clasf_etaria, duracao_filme, data_capa)
 
+#Mostar os Filmes
 with colunas_superior[1]:
     st.subheader("coluna 2")
 
 #colunas de baixo
+#Alteracao e deletar filmes
 colunas_inferior = st.columns(2)
 
+#Alterar o Filmes
 with colunas_inferior [0]:
     st.markdown("##### --- Alteração de Filmes ---", text_alignment="center")
 
@@ -73,14 +78,27 @@ with colunas_inferior [0]:
                 id_filme = db.get_ID_filme_by_name(nome_filme)
                 db.update_filme_by_id(id_filme , genero_filme , clasf_etaria , duracao_filme , capa_filmes)
 
-
-
-
+#Remover o filmes
 with colunas_inferior [1]:
     st.markdown("##### --- Remoção de Filmes ---", text_alignment="center")
 
     with st.form("Deletar Filme" , width="stretch"):
-        id_deletar = st.number_input("Insira o ID" , min_value=0 , step=1)
-        btn_deletar = st.form_submit_button ("Deletar")
-    if btn_deletar:
-        db.deletar_filme(id_deletar)
+        id_filme = st.number_input("Insira o ID" , min_value=0 , step=1)
+        btn_busca_filme = st.form_submit_button("Enviar")
+
+        if "nome_filme" not in st.session_state:
+            st.session_state.nome_filme = None
+
+        if btn_busca_filme:
+            st.session_state.nome_filme = db.get_name_filme_by_ID(id_filme)
+
+    if st.session_state.nome_filme:
+        with st.form("form_excluir_filme"):
+            df = pd.DataFrame({"Nome do Filme": [st.session_state.nome_filme] , "ID do Filme": [id_filme]})
+
+            st.table(df)
+            btn_excluir_filme = st.form_submit_button("Enviar")
+
+            if btn_excluir_filme:
+                msg = db.deletar_filme(id_filme)
+                st.success(msg)
