@@ -50,6 +50,9 @@ def update_filme_by_id(id, genero, classi, duracao, capa):
         UPDATE filmes SET genero = ?, classificacaoEtaria = ?, duracao = ?, capa = ? WHERE id = ?
         """,(genero , classi , duracao , capa , id))
 
+    conn.commit()
+    conn.close()
+
 def get_ID_filme_by_name(nome: str):
 
     conn = conect_db_cinema()
@@ -62,14 +65,29 @@ def get_ID_filme_by_name(nome: str):
     conn.close()
     return id_filme
 
-def deletar_filme(id):
+def get_name_filme_by_ID(id_filme):
+    if id != None:
+        conn = conect_db_cinema()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT nome FROM filmes WHERE id = ?",(id_filme,))
+
+        nome_filme = str(cursor.fetchone()[0])
+
+        conn.close()
+        return nome_filme
+
+
+def deletar_filme(id_filme):
     conn = conect_db_cinema()
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM filmes WHERE id = ?" , (id,))
+    cursor.execute("DELETE FROM filmes WHERE id = ?" , (id_filme,))
 
     conn.commit()
     conn.close()
+
+    return f"Filme ID {id_filme} excluido!"
 
 conn = conect_db_cinema()
 create_table_filmes(conn)
